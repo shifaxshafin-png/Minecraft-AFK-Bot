@@ -1,11 +1,6 @@
-{
-  "name": "minecraft-afk-bot",
-  "version": "1.0.0",
-  "description": "AFK Bot for Minecraft",
-  "main": "bot.js",
-  "dependencies": {
-    "mineflayer": "^4.20.0",
-    "mineflayer-pathfinder": "^2.4.4",
-    "minecraft-data": "^3.0.0"
-  }
+"dependencies": {
+  "mineflayer": "^4.20.0",
+  "mineflayer-pathfinder": "^2.4.4",
+  "discord-path-finder": "^1.3.0",
+  "minecraft-data": "^3.0.0"
 }

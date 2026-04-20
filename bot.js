@@ -22,7 +22,7 @@ bot.on('messagestr', (message) => {
   const captchaMatch = message.match(/\b[a-zA-Z0-9]{3}\b/);
   if (captchaMatch && (msg.includes('captcha') || msg.includes('verify') || msg.includes('code'))) {
     setTimeout(() => {
-      bot.chat(captchaMatch[0]);
+      bot.chat(captchaMatch[0]); // [0] যোগ করা হয়েছে সঠিক কোডটি পাঠাতে
     }, 3000);
   }
 
@@ -41,32 +41,30 @@ bot.on('windowOpen', (window) => {
 });
 
 function findAndClickNPC() {
-  const mcData = require('minecraft-data')(bot.version);
-  const movements = new Movements(bot, mcData);
-  bot.pathfinder.setMovements(movements);
+  try {
+    const mcData = require('minecraft-data')(bot.version);
+    const movements = new Movements(bot, mcData);
+    bot.pathfinder.setMovements(movements);
 
-  const survivalNPC = bot.nearestEntity((entity) => {
-    return entity.type === 'player' && 
-           entity.metadata && 
-           JSON.stringify(entity.metadata).toLowerCase().includes('survival');
-  });
-
-  if (survivalNPC) {
-    const goal = new goals.GoalFollow(survivalNPC, 2);
-    bot.pathfinder.setGoal(goal);
-
-    bot.once('goal_reached', () => {
-      bot.lookAt(survivalNPC.position.offset(0, 1.6, 0));
-      bot.activateEntity(survivalNPC);
-      
-      setTimeout(() => {
-        bot.chat('/home s');
-      }, 10000);
+    const survivalNPC = bot.nearestEntity((entity) => {
+      return entity.type === 'player' && 
+             entity.metadata && 
+             JSON.stringify(entity.metadata).toLowerCase().includes('survival');
     });
-  } else {
-    bot.chat('/server survival');
-    setTimeout(() => bot.chat('/home s'), 10000);
-  }
+
+    if (survivalNPC) {
+      const goal = new goals.GoalFollow(survivalNPC, 2);
+      bot.pathfinder.setGoal(goal);
+      bot.once('goal_reached', () => {
+        bot.lookAt(survivalNPC.position.offset(0, 1.6, 0));
+        bot.activateEntity(survivalNPC);
+        setTimeout(() => bot.chat('/home s'), 10000);
+      });
+    } else {
+      bot.chat('/server survival');
+      setTimeout(() => bot.chat('/home s'), 10000);
+    }
+  } catch (e) { console.log(e) }
 }
 
 setInterval(() => {
@@ -77,6 +75,4 @@ setInterval(() => {
 }, 25000);
 
 bot.on('error', (err) => console.log('Error: ' + err));
-bot.on('end', () => {
-  setTimeout(() => process.exit(), 5000);
-});
+bot.on('end', () => setTimeout(() => process.exit(), 5000));

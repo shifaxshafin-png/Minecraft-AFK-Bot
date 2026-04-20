@@ -5,62 +5,63 @@ const bot = mineflayer.createBot({
   host: config.serverHost,
   port: config.serverPort,
   username: config.botUsername,
-  auth: 'offline',
-  version: false,
-  viewDistance: config.botChunk
+  version: "1.20.1"
 });
 
-let movementPhase = 0;
-const STEP_INTERVAL = 1500;
-const STEP_SPEED    = 1;
-const JUMP_DURATION = 500;
+bot.on('messagestr', (message) => {
+  console.log('[CHAT]: ' + message);
+
+  if (message.includes('/login')) {
+    setTimeout(() => {
+      bot.chat('/login Shafin1819');
+    }, 2000);
+  }
+
+  const captchaMatch = message.match(/\b[a-zA-Z0-9]{3}\b/);
+  if (captchaMatch && (message.toLowerCase().includes('captcha') || message.toLowerCase().includes('code'))) {
+    setTimeout(() => {
+      bot.chat(captchaMatch[0]);
+    }, 3500);
+  }
+
+  if (message.includes('success') || message.includes('logged in')) {
+    setTimeout(() => {
+      bot.chat('/lobby'); 
+    }, 5000);
+  }
+});
+
+bot.on('windowOpen', (window) => {
+  console.log('GUI Captcha Opened.');
+  setTimeout(() => {
+    bot.clickWindow(3, 0, 0);
+    setTimeout(() => {
+      bot.clickWindow(4, 0, 0);
+    }, 2000);
+  }, 3000);
+});
 
 bot.on('spawn', () => {
   setTimeout(() => {
-    bot.setControlState('sneak', true);
-    console.log(`✅ ${config.botUsername} is Ready!`);
-  }, 3000);
+    bot.chat('/home s');
+  }, 15000);
 
-  setTimeout(movementCycle, STEP_INTERVAL);
+  setInterval(() => {
+    const entity = bot.nearestEntity();
+    if (entity && entity.type === 'player') {
+      bot.lookAt(entity.position.offset(0, 1.6, 0));
+    }
+  }, 10000);
 });
 
-function movementCycle() {
-  if (!bot.entity) return;
+setInterval(() => {
+  const yaw = Math.random() * Math.PI * 2;
+  bot.look(yaw, 0, false);
+}, 30000);
 
-  switch (movementPhase) {
-    case 0:
-      bot.setControlState('forward', true);
-      bot.setControlState('back', false);
-      bot.setControlState('jump', false);
-      break;
-    case 1:
-      bot.setControlState('forward', false);
-      bot.setControlState('back', true);
-      bot.setControlState('jump', false);
-      break;
-    case 2:
-      bot.setControlState('forward', false);
-      bot.setControlState('back', false);
-      bot.setControlState('jump', true);
-      setTimeout(() => {
-        bot.setControlState('jump', false);
-      }, JUMP_DURATION);
-      break;
-    case 3:
-      bot.setControlState('forward', false);
-      bot.setControlState('back', false);
-      bot.setControlState('jump', false);
-      break;
-  }
-
-  movementPhase = (movementPhase + 1) % 4;
-
-  setTimeout(movementCycle, STEP_INTERVAL);
-}
-
-bot.on('error', (err) => {
-  console.error('⚠️ Error:', err);
-});
+bot.on('error', (err) => console.log('Error: ' + err));
+bot.on('kicked', (reason) => console.log('Kicked: ' + reason));
 bot.on('end', () => {
-  console.log('⛔️ Bot Disconnected!');
+  setTimeout(() => process.exit(), 10000);
 });
+

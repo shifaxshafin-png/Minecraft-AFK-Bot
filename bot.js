@@ -37,3 +37,5 @@ setInterval(() => {
 
 bot.on('error', (err) => console.log('Error: ' + err));
 bot.on('end', () => setTimeout(() => process.exit(), 10000));
+bot.on('end', () => {
+  console.log('Bot connection ended. Restarting...');

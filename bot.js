@@ -1,4 +1,11 @@
 const http = require('http');
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Bot is running!\n');
+}).listen(process.env.PORT || 3000);
+
+console.log('Web server is online to keep the bot alive.');
+
 http.createServer((req, res) => res.end('Bot is alive!')).listen(process.env.PORT || 3000);
 
 const mineflayer = require('mineflayer');
